@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <!--以下页面不被拦截-->
+    <http pattern="/login.html" security="none"></http>
+    <http pattern="/login_error.html" security="none"></http>
+    <http pattern="/css/**" security="none"></http>
+    <http pattern="/img/**" security="none"></http>
+    <http pattern="/js/**" security="none"></http>
+
+
+    <!--页面拦截规则-->
+    <http>
+        <!--<intercept-url pattern="/**" access="hasAnyAuthority()"/>-->
+        <intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')"/>
+        <!--设置登陆成功处理器-->
+        <form-login login-page="/login.html"
+                    default-target-url="/main.html"
+                    authentication-failure-url="/login_error.html"
+                    authentication-success-handler-ref="loginHandler"/>
+        <logout/>
+        <!--关闭跨域请求伪造控制-->
+        <csrf disabled="true"/>
+        <!--首页显示localhost 拒绝了我们的连接请求。 spring-Security安全框架造成的   同源策略-->
+        <headers>
+            <frame-options policy="SAMEORIGIN"></frame-options>
+        </headers>
+    </http>
+    <!--认证管理器 -->
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="admin" password="$2a$10$7ThPXAfbg1NpSAXdGv75z.hrt3K5IMsS9ua/8HTsRTxvlnT4xzS0G"
+                      authorities="ROLE_ADMIN"/>
+            </user-service>
+            <!--自定义密码加密策略-->
+            <password-encoder ref="bcryptEncoder"></password-encoder>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="UserDetailsService" class="com.qingcheng.controller.UserDetailsServiceImpl"></beans:bean>
+    <beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+    <beans:bean id="loginHandler" class="com.qingcheng.controller.AuthenticationSuccessHandlerImpl"></beans:bean>
+
+</beans:beans>

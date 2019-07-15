@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>order管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+<body class="hold-transition">
+<div id="app">
+
+    <div class="content-header">
+        <h1>管理<small>order管理</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>管理</el-breadcrumb-item>
+            <el-breadcrumb-item>order管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+
+    <div class="app-container">
+        <i class="el-icon-share"></i>
+        <div class="box" >
+            <el-table
+                    :data="order"
+                    border
+                    style="width: 100%">
+                <el-table-column
+                        prop="id"
+                        label="订单id"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="shippingCode"
+                        label="物流单号"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="shippingName"
+                        label="物流名称"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="orderStatus"
+                        label="订单状态"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="payStatus"
+                        label="支付状态"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="payType"
+                        label="支付类型"
+                        width="180">
+                </el-table-column>
+                <el-table-column
+                        prop="payTime"
+                        label="支付时间"
+                        width="180">
+                </el-table-column>
+            </el-table>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script src="/js/util.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data(){
+            return {
+                order:[],
+                orderItem:[],
+                id: 0
+            }
+        },
+        created(){
+            this.id=getQueryString("id");//获取id
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                axios.get(`/order/getOrders.do?id=${this.id}`)
+                    .then(response => {
+                        this.order.push(response.data.order);
+                        this.orderItem.push(response.data.orderItems);
+                    });
+            },
+        }
+    })
+</script>
+</html>
