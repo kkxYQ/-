@@ -58,6 +58,8 @@ public interface SkuService {
      */
     public void deletePriceFromRedis(String id);
 
-
-
+    /**
+     * 导入索引库
+     */
+    public void importToEs();
 }
