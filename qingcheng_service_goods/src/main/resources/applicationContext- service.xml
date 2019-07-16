@@ -2,9 +2,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+    <!--雪花算法-->
     <bean id="idWorker" class="com.qingcheng.utils.IdWorker">
         <constructor-arg index="0" value="1"/>
         <constructor-arg index="1" value="1"/>
+    </bean>
+
+    <!--es 高级客户端-->
+    <bean id="restHighLevelClient" class="com.qingcheng.service.impl.RestClientFactory"
+          factory-method="getRestHighLevelClient">
+
+        <constructor-arg index="0" value="127.0.0.1"/>
+        <constructor-arg index="1" value="9200"/>
     </bean>
 </beans>
