@@ -1,15 +1,14 @@
 package com.qingcheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.qingcheng.dao.BrandMapper;
+import com.qingcheng.dao.SpecMapper;
 import com.qingcheng.service.goods.SkuSearchService;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -30,6 +29,10 @@ public class SkuSearchServiceImpl implements SkuSearchService {
 
         @Autowired
         private RestHighLevelClient restHighLevelClient;
+        @Autowired
+        private BrandMapper brandMapper;
+        @Autowired
+        private SpecMapper specMapper;
 
     /**
      * 关键字查询
@@ -41,7 +44,7 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         // 创建search请求
         SearchRequest searchRequest = new SearchRequest ("sku");//将请求限制为sku索引
         searchRequest.types ("doc");//设置查询的类型
-        //构造查询请求体
+        //构造查询请求体 {query:}
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder ();
         //查询参数设置  布尔查询
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery ();
@@ -53,6 +56,30 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         if(searchMap.get ("category")!=null){
             TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery ("categoryName", searchMap.get ("category"));
             boolQueryBuilder.filter (termQueryBuilder);
+        }
+        //1.3品牌分类  过滤查询
+        if(searchMap.get ("brand")!=null){
+            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery ("brandName", searchMap.get ("brand"));
+            boolQueryBuilder.filter (termQueryBuilder);
+        }
+        //1.4规格过滤
+        for (String key : searchMap.keySet ()) {
+            if (key.startsWith ("spec.")){//开始值为spec.为规格
+                TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery (key+".keyword", searchMap.get (key));
+                boolQueryBuilder.filter (termQueryBuilder);
+            }
+        }
+        //1.5价格过滤
+        if(searchMap.get ("price")!=null){
+            String[] prices = searchMap.get ("price").split ("-");
+            if(!prices[0].equals (0)){//最低价格不等于0
+                RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery ("price").gte (prices[0] + "00");
+                boolQueryBuilder.filter (rangeQueryBuilder);
+            }
+            if(!prices[1].equals ("*")){
+                RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery ("price").gte (prices[1] + "00");
+                boolQueryBuilder.filter (rangeQueryBuilder);
+            }
         }
 
 
@@ -80,6 +107,7 @@ public class SkuSearchServiceImpl implements SkuSearchService {
                 Map <String, Object> skuMap = hit.getSourceAsMap ();
                 arrayList.add (skuMap);
             }
+            resultMap.put ("rows",arrayList);
             //2.2商品分类列表
             Aggregations aggregations = searchResponse.getAggregations ();
             Map <String, Aggregation> aggregationMap = aggregations.getAsMap ();
@@ -91,12 +119,32 @@ public class SkuSearchServiceImpl implements SkuSearchService {
             }
             resultMap.put ("categoryList",categoryList);
 
-            resultMap.put ("rows",arrayList);
+
+            String categoryName="";//商品分类的名称
+            if(searchMap.get ("category")==null){//如果没有分类条件
+                if(categoryList.size ()>0){
+                    categoryName=categoryList.get (0);//提取分类列表的第一个分类
+                }else {
+                    categoryName=searchMap.get ("category");//取出参数中的分类名称
+                }
+            }
+
+            //2.3品牌列表
+            if(searchMap.get ("brand")==null){
+                List <Map> brandList = brandMapper.findListByCategoryName (categoryName);
+                resultMap.put ("brandList",brandList);
+            }
+            //2.4规格列表
+            List <Map> specList = specMapper.findListBycategroyName (categoryName);
+            for (Map spec : specList) {
+                String[] options = ((String) spec.get ("options")).split (",");//规格选项列表
+                spec.put ("options",options);
+            }
+            resultMap.put ("specList",specList);
+
         } catch (IOException e) {
             e.printStackTrace ();
         }
-
-
 
         return resultMap;
     }

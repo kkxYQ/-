@@ -13,4 +13,6 @@
 	<dubbo:registry protocol="zookeeper" address="${zk.address}" />
 	<dubbo:annotation package="com.qingcheng.service" />
 	<!--<context:annotation-config/>-->
+    <!--设置超时时间 毫秒为单位-->
+    <dubbo:provider timeout="60000" threadpool="fixed" threads="100" accepts="1000"/>
 </beans>
