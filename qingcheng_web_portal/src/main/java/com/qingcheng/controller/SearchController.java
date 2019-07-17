@@ -24,6 +24,18 @@ public class SearchController {
         //远程调用接口
         Map result = skuSearchService.search (searchMap);
         model.addAttribute ("result",result);
+
+        //url处理
+        StringBuffer url = new StringBuffer ("/search.do?");
+        for (String key : searchMap.keySet ()) {
+            url.append ("&"+key+"="+searchMap.get (key));
+        }
+        model.addAttribute ("url",url);
+
+        //取消商品分类过滤
+        model.addAttribute ("searchMap",searchMap);
+
+
         return "search";
     }
 }

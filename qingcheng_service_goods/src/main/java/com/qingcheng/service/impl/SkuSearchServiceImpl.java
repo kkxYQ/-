@@ -9,8 +9,14 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,16 +43,27 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         searchRequest.types ("doc");//设置查询的类型
         //构造查询请求体
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder ();
-        //查询参数设置  组合查询
+        //查询参数设置  布尔查询
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery ();
 
-
-        //1.1关键字搜索
-        //查询参数设置 匹配查询（创建一个在name字段上匹配文本keywords的全文匹配查询)
+        //1.1关键字搜索  匹配查询
         MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery ("name", searchMap.get ("keywords"));
         boolQueryBuilder.must (matchQueryBuilder);
+        //1.2商品分类   过滤查询
+        if(searchMap.get ("category")!=null){
+            TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery ("categoryName", searchMap.get ("category"));
+            boolQueryBuilder.filter (termQueryBuilder);
+        }
+
+
+
         searchSourceBuilder.query (boolQueryBuilder);
         searchRequest.source (searchSourceBuilder);
+
+        //商品分类列表  分组查询
+        TermsAggregationBuilder  termsAggregationBuilder= AggregationBuilders.terms ("sku_category").field ("categoryName");
+        searchSourceBuilder.aggregation (termsAggregationBuilder);
+
 
 
         //2.封装查询结果
@@ -63,10 +80,23 @@ public class SkuSearchServiceImpl implements SkuSearchService {
                 Map <String, Object> skuMap = hit.getSourceAsMap ();
                 arrayList.add (skuMap);
             }
+            //2.2商品分类列表
+            Aggregations aggregations = searchResponse.getAggregations ();
+            Map <String, Aggregation> aggregationMap = aggregations.getAsMap ();
+            Terms terms = (Terms) aggregationMap.get ("sku_category");//复合聚合
+            List <? extends Terms.Bucket> buckets = terms.getBuckets ();//储存桶
+            List<String> categoryList = new ArrayList ();
+            for (Terms.Bucket bucket : buckets) {
+                categoryList.add (bucket.getKeyAsString ());
+            }
+            resultMap.put ("categoryList",categoryList);
+
             resultMap.put ("rows",arrayList);
         } catch (IOException e) {
             e.printStackTrace ();
         }
+
+
 
         return resultMap;
     }
