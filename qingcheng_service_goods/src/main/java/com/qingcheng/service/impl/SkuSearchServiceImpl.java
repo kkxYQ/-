@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.qingcheng.dao.BrandMapper;
 import com.qingcheng.dao.SpecMapper;
 import com.qingcheng.service.goods.SkuSearchService;
+import com.qingcheng.utils.CacheKey;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -18,6 +19,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         private BrandMapper brandMapper;
         @Autowired
         private SpecMapper specMapper;
+        @Autowired
+        private RedisTemplate redisTemplate;
 
     /**
      * 关键字查询
@@ -131,11 +135,13 @@ public class SkuSearchServiceImpl implements SkuSearchService {
 
             //2.3品牌列表
             if(searchMap.get ("brand")==null){
-                List <Map> brandList = brandMapper.findListByCategoryName (categoryName);
+                //List <Map> brandList = brandMapper.findListByCategoryName (categoryName);
+                List<Map> brandList = (List <Map>) redisTemplate.boundHashOps (CacheKey.BRAND_LIST).get (categoryName);
                 resultMap.put ("brandList",brandList);
             }
             //2.4规格列表
-            List <Map> specList = specMapper.findListBycategroyName (categoryName);
+            //List <Map> specList = specMapper.findListBycategroyName (categoryName);
+            List<Map> specList = (List <Map>) redisTemplate.boundHashOps (CacheKey.SPEC_LIST).get (categoryList);
             for (Map spec : specList) {
                 String[] options = ((String) spec.get ("options")).split (",");//规格选项列表
                 spec.put ("options",options);

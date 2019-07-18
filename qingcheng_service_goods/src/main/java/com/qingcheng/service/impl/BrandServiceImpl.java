@@ -3,10 +3,14 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.BrandMapper;
+import com.qingcheng.dao.CategoryMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.goods.Brand;
+import com.qingcheng.pojo.goods.Category;
 import com.qingcheng.service.goods.BrandService;
+import com.qingcheng.utils.CacheKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -17,6 +21,10 @@ public class BrandServiceImpl implements BrandService {
 
     @Autowired
     private BrandMapper brandMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     /**
      * 返回全部记录
@@ -93,6 +101,21 @@ public class BrandServiceImpl implements BrandService {
      */
     public void delete(Integer id) {
         brandMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 品牌列表储存到缓存中
+     */
+    @Override
+    public void savrRedis() {
+        //查询所有分类
+        List <Category> categoryList = categoryMapper.selectAll ();
+        for (Category category : categoryList) {
+            List <Map> brandList = brandMapper.findListByCategoryName (category.getName ());
+            redisTemplate.boundHashOps (CacheKey.BRAND_LIST).put (category.getName (),brandList);
+        }
+
+
     }
 
     /**

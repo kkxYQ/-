@@ -35,7 +35,6 @@ public class SearchController {
         //取消商品分类过滤
         model.addAttribute ("searchMap",searchMap);
 
-
         return "search";
     }
 }

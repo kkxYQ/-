@@ -32,4 +32,9 @@ public interface BrandService {
 
     public void delete(Integer id);
 
+    /**
+     * 储存到缓存中
+     */
+    public void savrRedis();
+
 }
