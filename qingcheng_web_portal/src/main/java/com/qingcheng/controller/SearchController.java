@@ -21,9 +21,16 @@ public class SearchController {
     public String search(Model model, @RequestParam Map<String,String> searchMap) throws Exception {
         //字符集处理
         searchMap=WebUtil.convertCharsetToUTF8 (searchMap);
-        //商品分页
-        if(searchMap.get ("pageNo")==null){
+        //分页容错处理
+        if(searchMap.get ("pageNo")==null){//当前页
             searchMap.put ("pageNo","1");
+        }
+        //排序容错处理
+        if(searchMap.get ("sort")==null){//排序字段
+            searchMap.put ("sort","");
+        }
+        if(searchMap.get ("sortOrder")==null){//排序规则
+            searchMap.put ("sortOrder","DESC");
         }
         //远程调用接口
         Map result = skuSearchService.search (searchMap);

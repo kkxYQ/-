@@ -18,6 +18,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -85,7 +86,7 @@ public class SkuSearchServiceImpl implements SkuSearchService {
                 boolQueryBuilder.filter (rangeQueryBuilder);
             }
         }
-        //分页
+        //1.6分页
         Integer pageNo=Integer.parseInt (searchMap.get ("pageNo"));
         Integer paeSize=30;//每页显示的数量
 
@@ -94,8 +95,16 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         searchSourceBuilder.from (fromIndex);//页索引
         searchSourceBuilder.size (paeSize);//每页显示的条数
 
+        //排序
+        String sort=searchMap.get ("sort");//排序字段
+        String sortOrder = searchMap.get ("sortOrder");//排序规则
+        if(!"".equals (sort)){
+            searchSourceBuilder.sort (sort,SortOrder.valueOf (sortOrder));
+        }
+
         searchSourceBuilder.query (boolQueryBuilder);
         searchRequest.source (searchSourceBuilder);
+
 
         //商品分类列表  分组查询
         TermsAggregationBuilder  termsAggregationBuilder= AggregationBuilders.terms ("sku_category").field ("categoryName");
@@ -156,7 +165,6 @@ public class SkuSearchServiceImpl implements SkuSearchService {
             }
             resultMap.put ("specList",specList);
             //2.5分页
-
             //计算总页数
             long totalCont = searchHits.getTotalHits ();//总条数
             long totalPage =(totalCont%paeSize==0)?totalCont/paeSize:(totalCont/paeSize+1);//总页数
