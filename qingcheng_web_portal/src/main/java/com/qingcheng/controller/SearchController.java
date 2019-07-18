@@ -21,6 +21,10 @@ public class SearchController {
     public String search(Model model, @RequestParam Map<String,String> searchMap) throws Exception {
         //字符集处理
         searchMap=WebUtil.convertCharsetToUTF8 (searchMap);
+        //商品分页
+        if(searchMap.get ("pageNo")==null){
+            searchMap.put ("pageNo","1");
+        }
         //远程调用接口
         Map result = skuSearchService.search (searchMap);
         model.addAttribute ("result",result);
@@ -34,6 +38,28 @@ public class SearchController {
 
         //取消商品分类过滤
         model.addAttribute ("searchMap",searchMap);
+
+        int pageNo =Integer.parseInt (searchMap.get ("pageNo"));//当前页
+        model.addAttribute("pageNo",pageNo);
+
+        Long totalpages = (Long) result.get ("totalPages");//得到总页数
+        int startPage=1;//开始页码
+        int totalage=totalpages.intValue ();//结束页码
+        int endPge=totalage;
+
+        if(endPge>5){
+            startPage=pageNo-2;
+            if(startPage<=1){
+                startPage=1;
+            }
+            endPge=startPage+4;
+            if(endPge>totalage){
+                endPge=totalage;
+                startPage=totalage-4;
+            }
+        }
+        model.addAttribute ("startPage",startPage);
+        model.addAttribute ("endPage",endPge);
 
         return "search";
     }

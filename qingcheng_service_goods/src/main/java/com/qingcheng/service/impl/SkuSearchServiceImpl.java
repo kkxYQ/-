@@ -85,8 +85,14 @@ public class SkuSearchServiceImpl implements SkuSearchService {
                 boolQueryBuilder.filter (rangeQueryBuilder);
             }
         }
+        //分页
+        Integer pageNo=Integer.parseInt (searchMap.get ("pageNo"));
+        Integer paeSize=30;//每页显示的数量
 
-
+        //起始记录坐标
+        int fromIndex=(pageNo-1) * paeSize;
+        searchSourceBuilder.from (fromIndex);//页索引
+        searchSourceBuilder.size (paeSize);//每页显示的条数
 
         searchSourceBuilder.query (boolQueryBuilder);
         searchRequest.source (searchSourceBuilder);
@@ -142,11 +148,22 @@ public class SkuSearchServiceImpl implements SkuSearchService {
             //2.4规格列表
             //List <Map> specList = specMapper.findListBycategroyName (categoryName);
             List<Map> specList = (List <Map>) redisTemplate.boundHashOps (CacheKey.SPEC_LIST).get (categoryList);
-            for (Map spec : specList) {
-                String[] options = ((String) spec.get ("options")).split (",");//规格选项列表
-                spec.put ("options",options);
+            if(specList!=null){
+                for (Map spec : specList) {
+                    String[] options = ((String) spec.get ("options")).split (",");//规格选项列表
+                    spec.put ("options",options);
+                }
             }
             resultMap.put ("specList",specList);
+            //2.5分页
+
+            //计算总页数
+            long totalCont = searchHits.getTotalHits ();//总条数
+            long totalPage =(totalCont%paeSize==0)?totalCont/paeSize:(totalCont/paeSize+1);//总页数
+            resultMap.put ("totalPages",totalPage);
+
+
+
 
         } catch (IOException e) {
             e.printStackTrace ();
