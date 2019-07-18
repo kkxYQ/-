@@ -9,6 +9,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -18,6 +19,8 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -95,12 +98,17 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         searchSourceBuilder.from (fromIndex);//页索引
         searchSourceBuilder.size (paeSize);//每页显示的条数
 
-        //排序
+        //1.7排序
         String sort=searchMap.get ("sort");//排序字段
         String sortOrder = searchMap.get ("sortOrder");//排序规则
         if(!"".equals (sort)){
             searchSourceBuilder.sort (sort,SortOrder.valueOf (sortOrder));
         }
+        //1.8商品名称高亮显示
+        HighlightBuilder highlighter = new HighlightBuilder ();
+        highlighter.field ("name").preTags ("<font style='color:red'>").postTags ("</font>");
+        searchSourceBuilder.highlighter (highlighter);
+
 
         searchSourceBuilder.query (boolQueryBuilder);
         searchRequest.source (searchSourceBuilder);
@@ -123,7 +131,15 @@ public class SkuSearchServiceImpl implements SkuSearchService {
             //2.1商品列表
             List<Map<String,Object>> arrayList = new ArrayList<Map<String,Object>> ();
             for (SearchHit hit : hits) {
+
                 Map <String, Object> skuMap = hit.getSourceAsMap ();
+
+                 //高亮处理
+                Map <String, HighlightField> highlightFields = hit.getHighlightFields ();//获得多个高亮字段
+                HighlightField name = highlightFields.get ("name");//取得name集合
+                Text[] fragments = name.fragments ();//取得name里面的数组
+                skuMap.put ("name",fragments[0].toString ());//用高亮的内容覆盖原来的name值内容
+
                 arrayList.add (skuMap);
             }
             resultMap.put ("rows",arrayList);
