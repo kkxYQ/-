@@ -14,6 +14,7 @@
 </head>
 
 <body>
+<div id="app">
 	<!--页面顶部-->
 <div id="nav-bottom">
 	<!--顶部-->
@@ -80,25 +81,26 @@
 					<div class="control-group">
 						<label class="control-label">手机号：</label>
 						<div class="controls">
-							<input type="text" placeholder="请输入你的手机号" class="input-xfat input-xlarge">
+							<input type="text" placeholder="请输入你的手机号" v-model="pojo.phone" class="input-xfat input-xlarge">
 						</div>
 					</div>
 					<div class="control-group">
 						<label for="inputPassword" class="control-label">验证码：</label>
 						<div class="controls">
-							<input type="text" placeholder="验证码" class="input-xfat input-xlarge">
+							<input type="text" placeholder="验证码" v-model="smsCode" class="input-xfat input-xlarge">
+                            <a style="cursor:pointer" @click="sendSms()">发送短信验证码</a>
 						</div>
 					</div>
 					<div class="control-group">
 						<label for="inputPassword" class="control-label">登录密码：</label>
 						<div class="controls">
-							<input type="password" placeholder="设置登录密码" class="input-xfat input-xlarge">
+							<input type="password" placeholder="设置登录密码" v-model="pojo.password" class="input-xfat input-xlarge">
 						</div>
 					</div>
 					<div class="control-group">
 						<label for="inputPassword" class="control-label">确认密码：</label>
 						<div class="controls">
-							<input type="password" placeholder="再次确认密码" class="input-xfat input-xlarge">
+							<input type="password" placeholder="再次确认密码" v-model="password" class="input-xfat input-xlarge">
 						</div>
 					</div>
 					<div class="control-group">
@@ -110,7 +112,7 @@
 					<div class="control-group">
 						<label class="control-label"></label>
 						<div class="controls btn-reg">
-							<a class="sui-btn btn-block btn-xlarge btn-danger" href="home.html" target="_blank">完成注册</a>
+							<a class="sui-btn btn-block btn-xlarge btn-danger"  @click="save()">完成注册</a>
 						</div>
 					</div>
 				</form>
@@ -134,8 +136,45 @@
 			</div>
 		</div>
 	</div>
+</div>
 
+<script src="js/vue.js"></script>
+<script src="js/axios.js"></script>
 
+<script>
+    new Vue({
+        el:'#app',
+        data(){
+            return{
+                pojo:{},
+                smsCode:'',
+                password:''
+            }
+        },
+        methods:{
+            sendSms(){
+                axios.get(`/user/sendSms.do?phone=${this.pojo.phone}`)
+                    .then(response=>{
+                        alert(response.data.message);
+                    })
+            },
+            save(){
+                if(this.pojo.password!=this.password){
+                    alert("两次输入密码不一致")
+                    return ;
+                }
+                axios.post(`/user/save.do?code=${this.smsCode}`,this.pojo)
+                    .then(response=>{
+                        alert(response.data.message);
+                        this.pojo={};//清空输入框中的值
+                        this.smsCode="";
+                        this.password="";
+                    })
+            }
+        }
+    })
+
+</script>
 
 
 </body>

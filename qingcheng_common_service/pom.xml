@@ -30,6 +30,17 @@
             <groupId>com.github.miemiedev</groupId>
             <artifactId>mybatis-paginator</artifactId>
         </dependency>
+        <!--缓存-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>2.0.5.RELEASE</version>
+        </dependency>
         <!-- MySql -->
         <dependency>
             <groupId>mysql</groupId>
@@ -49,17 +60,6 @@
             <groupId>tk.mybatis</groupId>
             <artifactId>mapper</artifactId>
             <version>4.1.4</version>
-        </dependency>
-        <!--加缓存-->
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-            <version>2.0.5.RELEASE</version>
         </dependency>
     </dependencies>
 
