@@ -20,7 +20,7 @@ public class LoginController {
     public Map username(){
         String name = SecurityContextHolder.getContext().getAuthentication().getName();//得到登录人账号
         System.out.println("当前登录用户："+name);
-        if("anonymousUser".equals(name)){ //未登录
+        if("anonymousUser".equals(name)){ //未登录(IS_AUTHENTICATED_ANONYMOUSLY)  显示anonymousUser
             name="";
         }
         Map map=new HashMap ();

@@ -1373,7 +1373,7 @@
 
     <script>
         new Vue({
-            el:'app',
+            el:'#app',
             data(){
                 return{
                     username:"",
@@ -1381,8 +1381,8 @@
             },
             created(){
                 axios.get(`/login/username.do`)
-                    .then(resopnse=>{
-                        this.username=response.date.username;
+                    .then(response=>{
+                        this.username=response.data.username;
                     })
             }
         })
