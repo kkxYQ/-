@@ -25,7 +25,12 @@ public interface OrderService {
 
     public Order findById(String id);
 
-    public void add(Order order);
+    /**
+     * 订单保存需要在订单页面显示订单号以及支付的金额
+     * @param order
+     * @return
+     */
+    public Map<String,Object> add(Order order);
 
 
     public void update(Order order);

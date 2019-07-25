@@ -41,10 +41,10 @@ public interface CartService {
      */
     public int preferential(String username);
 
-//    /**
-//     * 根据用户名获取购物车
-//     * @param username
-//     * @return
-//     */
-//    public List<Map<String,Object>> findNewOrderItemList(String username);
+    /**
+     * 根据用户名获取购物车
+     * @param username
+     * @return
+     */
+    public List<Map<String,Object>> findNewOrderItemList(String username);
 }

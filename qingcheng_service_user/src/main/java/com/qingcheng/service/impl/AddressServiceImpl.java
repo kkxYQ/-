@@ -95,6 +95,15 @@ public class AddressServiceImpl implements AddressService {
         addressMapper.deleteByPrimaryKey(id);
     }
 
+
+    public List <Address> findByUsername(String usrname) {
+        Example example = new Example (Address.class);
+        Example.Criteria criteria = example.createCriteria ();
+        criteria.andEqualTo ("username",usrname);
+        List <Address> addresses = addressMapper.selectByExample (example);
+        return addresses;
+    }
+
     /**
      * 构建查询条件
      * @param searchMap

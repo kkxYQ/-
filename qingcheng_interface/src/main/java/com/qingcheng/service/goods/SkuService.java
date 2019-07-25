@@ -1,6 +1,7 @@
 package com.qingcheng.service.goods;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.goods.Sku;
+import com.qingcheng.pojo.order.OrderItem;
 import org.omg.PortableInterceptor.Interceptor;
 
 import java.util.*;
@@ -62,4 +63,11 @@ public interface SkuService {
      * 导入索引库
      */
     public void importToEs();
+
+    /**
+     * 购物车选中批量扣减库存
+     * @param orderItems
+     * @return
+     */
+    public boolean deductionStock(List<OrderItem> orderItems);
 }

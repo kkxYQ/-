@@ -1,5 +1,10 @@
 package com.qingcheng.service.impl;
+import java.util.HashMap;
+import	java.util.stream.Collectors;
+
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.OrderItemMapper;
@@ -10,7 +15,11 @@ import com.qingcheng.pojo.order.GroupOrder;
 import com.qingcheng.pojo.order.Order;
 import com.qingcheng.pojo.order.OrderItem;
 import com.qingcheng.pojo.order.OrderLog;
+import com.qingcheng.service.goods.SkuService;
+import com.qingcheng.service.order.CartService;
 import com.qingcheng.service.order.OrderService;
+import com.qingcheng.utils.IdWorker;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
@@ -18,6 +27,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 @Service(interfaceClass = OrderService.class)
 public class OrderServiceImpl implements OrderService {
@@ -114,11 +124,78 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 新增
+     * 订单保存需要在订单页面显示订单号以及支付的金额
      * @param order
      */
-    public void add(Order order) {
-        orderMapper.insert(order);
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private IdWorker idWorker;
+    @Reference
+    private SkuService skuService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    public Map<String ,Object> add(Order order) {
+        long setid = idWorker.nextId ();//雪花算法生成id
+        //1.获取选中购物车
+        List <Map <String, Object>> orderItemList = cartService.findNewOrderItemList (order.getUsername ());//购物车(刷新单价)
+        List <OrderItem> orderItems = orderItemList.stream ()
+                .filter (cart -> (boolean) cart.get ("checked"))
+                .map (cart -> (OrderItem) cart.get ("item"))
+                .collect (Collectors.toList ());//选中购物车
+
+        for (OrderItem orderItem : orderItems){
+            orderItem.setOrderId (setid+"");
+        }
+
+        //2.扣减库存
+        if(!skuService.deductionStock(orderItems)){
+            throw new RuntimeException("库存不足666");
+        };
+        try {
+            //3.保存订单主表
+            order.setId (setid+"");//不使用数据库自增长的id
+            //合计数 使用流
+            IntStream numStream = orderItems.stream ().mapToInt (OrderItem::getNum);
+            int totalNum = numStream.sum ();//总数量
+            IntStream numMoney = orderItems.stream ().mapToInt (OrderItem::getMoney);
+            int totalMoney = numMoney.sum ();//订单总金额
+            int preMoney=cartService.preferential (order.getUsername ());//优惠金额
+            order.setTotalNum (totalNum);
+            order.setTotalNum (totalMoney);
+            order.setPreMoney (preMoney);
+            order.setPayMoney (totalMoney-preMoney);//实际支付金额
+            order.setCreateTime (new Date ());//订单创建时间
+            order.setEndTime (new Date ());
+            order.setOrderStatus ("0");//订单状态
+            order.setPayStatus ("0");//支付状态：未支付
+            order.setConsignStatus ("0");//发货状态：未发货
+            orderMapper.insert (order);
+
+            //制造异常
+            //int x=1/0;
+
+            //4.保存订单明细表
+            //打折比例方便以后退款使用   支付金额/总金额
+            double proportion=(double)order.getPreMoney ()/totalMoney;
+            for (OrderItem orderItem : orderItems){
+                orderItem.setOrderId (order.getId ());//订单主表id
+                orderItem.setId (idWorker.nextId ()+"");
+                orderItem.setPayMoney ((int) (orderItem.getMoney ()*proportion));//支付金额
+                orderItemMapper.insert (orderItem);
+            }
+        } catch (Exception e) {
+            rabbitTemplate.convertAndSend ("","queue.skuback", JSON.toJSONString (orderItems));
+            throw new RuntimeException ("订单生成失败");//抛出异常让其回滚
+        }
+        //5.清空选中购物车
+        cartService.deleteCheckedCart (order.getUsername ());
+        //6.返回
+        Map map=new HashMap ();
+        map.put ("ordersn",order.getId ());//产生的订单号
+        map.put ("money",order.getPayMoney ());//支付的金额
+        return map;
     }
 
     /**

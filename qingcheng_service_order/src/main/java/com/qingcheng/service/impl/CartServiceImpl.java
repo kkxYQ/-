@@ -190,4 +190,20 @@ public class CartServiceImpl implements CartService {
 
         return allpreMoney;
     }
+
+    @Override
+    public List <Map <String, Object>> findNewOrderItemList(String username) {
+        //获取选中购物车
+        List <Map <String, Object>> cartList = findCartList (username);
+        //循环购物车列表重新读取每个商品的价格
+        for (Map <String, Object> map : cartList) {
+            OrderItem orderItem = (OrderItem) map.get ("item");
+            Sku sku = skuService.findById (orderItem.getSkuId ());
+            orderItem.setPrice (sku.getPrice ());//更新价格
+            orderItem.setMoney (sku.getPrice ()*orderItem.getNum ());//更新金额
+        }
+        redisTemplate.boundHashOps (CacheKey.CART_LIST).put (username,cartList);
+
+        return cartList;
+    }
 }

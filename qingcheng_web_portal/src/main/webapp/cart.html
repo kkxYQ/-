@@ -134,7 +134,7 @@
 						<span><em>已节省：</em><i>-¥{{(preferential/100).toFixed(2)}}</i></span>
 					</div>
 					<div class="sumbtn">
-						<a class="sum-btn" href="getOrderInfo.html" target="_blank">结算</a>
+						<a class="sum-btn" href="order.html" target="_blank">结算</a>
 					</div>
 				</div>
 			</div>
@@ -421,6 +421,7 @@
                 totalNum:0,//总数量
                 totalMoney:0,//总金额
                 preferential:0,//优惠金额
+                addressList:[]//收货人地址列表
             }
         },
         created(){
@@ -467,6 +468,12 @@
             deleteCheckedCart(){
                 axios.get(`/cart/deleteCheckedCart.do`).then(reponse=>{
                     this.findCarList();
+                })
+            },
+            //查询收货人地址列表
+            findByUsername(){
+                axios.get(`/cart/findAddressList.do`).then(response=>{
+                    this.addressList=response.data;
                 })
             }
 

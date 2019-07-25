@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.qingcheng.dao.SkuMapper;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.pojo.goods.Sku;
+import com.qingcheng.pojo.order.OrderItem;
 import com.qingcheng.service.goods.SkuService;
 import com.qingcheng.utils.CacheKey;
 import org.apache.http.HttpHost;
@@ -23,6 +24,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
@@ -30,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service(interfaceClass =SkuService.class )
 public class SkuServiceImpl implements SkuService {
 
     @Autowired
@@ -184,6 +186,42 @@ public class SkuServiceImpl implements SkuService {
             pageNo++;
         }
         System.out.println ("......0索引库数据完成");
+    }
+
+    /**
+     * 事务必须在接口中声明
+     * 购物车选中批量扣减库存
+     * @param orderItems
+     * @return
+     */
+    @Transactional
+    public boolean deductionStock(List <OrderItem> orderItems) {
+        //是否可以扣减
+        boolean isDeucation=true;
+        //检查是否可以扣减库存
+        for (OrderItem orderItem : orderItems) {
+            Sku sku = findById (orderItem.getSkuId ());
+            if (sku==null){
+                isDeucation=false;
+                break;
+            }
+            if (!"1".equals (sku.getStatus ())){
+                isDeucation=false;
+                break;
+            }
+            if (sku.getNum ().intValue ()<orderItem.getNum ().intValue ()){
+                isDeucation=false;
+                break;
+            }
+        }
+        //执行扣减
+        if (isDeucation){
+            for (OrderItem orderItem : orderItems) {
+                skuMapper.reduce (orderItem.getSkuId (),orderItem.getNum ());//扣减库存
+                skuMapper.add (orderItem.getSkuId (),orderItem.getNum ());//增加销量
+            }
+        }
+        return isDeucation;
     }
 
     /**
