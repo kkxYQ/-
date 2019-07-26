@@ -8,5 +8,7 @@
     <!--访问首页不需要登陆-->
     <http pattern="/index.do" security="none"></http>
     <http pattern="/search.do" security="none"></http>
+    <!--支付成功回调放行-->
+    <http pattern="/wxpay/notify.do" security="none"></http>
 
 </beans:beans>

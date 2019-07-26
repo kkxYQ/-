@@ -1,30 +1,30 @@
 package com.github.wxpay.sdk;
 
 import java.io.InputStream;
-
+//微信配置类
 public class Config extends WXPayConfig {
     @Override
-    String getAppID() {
+    public String getAppID() {
         return "wx8397f8696b538317";
-    }
+    }//公众账户id
 
     @Override
-    String getMchID() {
+    public String getMchID() {
         return "1473426802";
-    }
+    }//商户号
 
     @Override
-    String getKey() {
+    public String getKey() {
         return "T6m9iK73b0kn9g5v426MKfHQH7X8rKwb";
-    }
+    }//密钥
 
     @Override
-    InputStream getCertStream() {
+    public InputStream getCertStream() {
         return null;
     }
 
     @Override
-    IWXPayDomain getWXPayDomain() {
+    public IWXPayDomain getWXPayDomain() {
         return new IWXPayDomain(){
 
             @Override

@@ -52,5 +52,12 @@ public interface OrderService {
      */
     public void merge(String idone, String idtwo);
 
+    /**
+     * 修改订单状态
+     * @param orderId 订单Id
+     * @param transactionId 微信平台返回的流水号
+     */
+    public void updatePayStatus(String orderId,String transactionId);
+
 
 }

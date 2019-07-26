@@ -29,7 +29,7 @@ public class Init implements InitializingBean {
         System.out.println ("--缓存预热--");
         categoryService.saveCategoryTreeToRedis ();//加载商品分类导航缓存
         skuService.saveAllPriceToRedis ();//加载价格数据
-        skuService.importToEs ();//加载数据到ES中
+//        skuService.importToEs ();//加载数据到ES中
         //品牌列表缓存
         if(!redisTemplate.hasKey (CacheKey.BRAND_LIST)){
             brandService.savrRedis ();

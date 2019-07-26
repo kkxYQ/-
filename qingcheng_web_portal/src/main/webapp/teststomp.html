@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websorckt</title>
+    <script src="js/stomp.min.js"></script>
+</head>
+<body>
+<script>
+
+    var client = Stomp.client('ws://localhost:15674/ws');
+
+    //向rabbitmq发送消息
+    // var print_first = pipe('#first', function(data) {
+    //     client.send('/topic/test', {"content-type":"text/plain"}, data);
+    // });
+
+    //消息订阅者 可以写交换器以及队列
+    var on_connect = function(x) {
+        id = client.subscribe("/exchange/paynotify", function(d) {
+            alert(d.body);
+        });
+    };
+    var on_error =  function() {
+        console.log('error');
+    };
+    client.connect('itcast', 'itcast', on_connect, on_error, '/');
+
+</script>
+
+</body>
+</html>
