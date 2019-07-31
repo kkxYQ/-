@@ -4,8 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.system.Menu;
-import com.qingcheng.service.system.MenuService;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.qingcheng.system.MenuService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

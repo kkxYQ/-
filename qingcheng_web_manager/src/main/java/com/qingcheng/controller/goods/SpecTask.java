@@ -1,7 +1,7 @@
 package com.qingcheng.controller.goods;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.qingcheng.service.goods.SpecService;
+import com.qingcheng.goods.SpecService;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

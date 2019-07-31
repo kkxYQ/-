@@ -3,7 +3,7 @@ package com.qingcheng.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.WebUtil;
 import com.qingcheng.pojo.system.LoginLog;
-import com.qingcheng.service.system.LoginLogService;
+import com.qingcheng.system.LoginLogService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 

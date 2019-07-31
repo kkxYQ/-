@@ -4,7 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.business.Activity;
-import com.qingcheng.service.business.ActivityService;
+import com.qingcheng.business.ActivityService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

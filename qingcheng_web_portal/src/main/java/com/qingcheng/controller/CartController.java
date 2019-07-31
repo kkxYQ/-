@@ -9,9 +9,9 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.order.Order;
 import com.qingcheng.pojo.user.Address;
-import com.qingcheng.service.order.CartService;
-import com.qingcheng.service.order.OrderService;
-import com.qingcheng.service.user.AddressService;
+import com.qingcheng.order.CartService;
+import com.qingcheng.order.OrderService;
+import com.qingcheng.user.AddressService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 

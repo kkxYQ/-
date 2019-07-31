@@ -2,7 +2,7 @@ package com.qingcheng.consumer;
 
 import com.alibaba.fastjson.JSON;
 import com.qingcheng.pojo.order.OrderItem;
-import com.qingcheng.service.goods.StockBackService;
+import com.qingcheng.goods.StockBackService;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;

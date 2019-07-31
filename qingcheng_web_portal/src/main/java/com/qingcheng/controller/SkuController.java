@@ -1,7 +1,7 @@
 package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.qingcheng.service.goods.SkuService;
+import com.qingcheng.goods.SkuService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交易类目统计</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="app">
+    <div class="content-header">
+        <h1>统计<small>transaction统计</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>统计</el-breadcrumb-item>
+            <el-breadcrumb-item>transaction统计</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div id="main" style="width: 800px;height: 400px;margin-top: 20px">
+
+
+    </div>
+
+
+    <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+    @change="fetchDate()">
+    </el-date-picker>
+
+    <el-table
+            :data="tableData"
+            border
+            style="width: 100%">
+        <el-table-column
+                prop="pay_money"
+                label="付款金额"
+                width=" 150">
+        </el-table-column>
+        <el-table-column
+                prop="number_refund_amount"
+                label="退款金额"
+                width=" 150">
+        </el-table-column>
+        <el-table-column
+                prop="number_payments"
+                label="付款人数"
+                width=" 150">
+        </el-table-column>
+        <el-table-column
+                prop="number_piece"
+                label="付款件数"
+                width=" 150">
+        </el-table-column>
+        <el-table-column
+                prop="number_placed"
+                label="下单人数"
+                width=" 150">
+        </el-table-column>
+        <el-table-column
+                prop="number_visitors"
+                label="浏览人数"
+                width=" 150">
+        </el-table-column>
+
+
+
+        <el-table-column
+                label="下单转化率"
+                width=" 150">
+            <template slot-scope="scope">
+                {{(scope.row.number_placed/scope.row.number_visitors*100).toFixed(0)}}%
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="money"
+                label="付款转化率"
+                width=" 150">
+            <template slot-scope="scope">
+                {{(scope.row.number_payments/scope.row.number_placed*100).toFixed(0)}}%
+            </template>
+        </el-table-column>
+        <el-table-column
+                label="成交转化率"
+                width=" 150">
+            <template slot-scope="scope">
+                {{(scope.row.number_payments/scope.row.number_visitors*100).toFixed(2)}}%
+            </template>
+        </el-table-column>
+    </el-table>
+</div>
+
+</body>
+<script src="/js/vue.js"></script>
+<script src="/js/axios.js"></script>
+<script src="/js/elementui.js"></script>
+<script src="/js/util.js"></script>
+<script src="/js/echarts.common.min.js"></script>
+
+<script>
+    new Vue({
+        el:'#app',
+        data(){
+            return{
+                tableData:[],
+                dateRange:[],
+                totalNum:0,
+                totalMoney:0
+
+
+            }
+        },
+        methods:{
+            fetchDate(){
+                let date1=this.dateRange[0].Format('yyyy-MM-dd');
+                let date2=this.dateRange[1].Format('yyyy-MM-dd');
+                axios.get(`/tran/count.do?date1=${date1}&date2=${date2}`)
+                    .then(response=>{
+                        this.tableData=response.data;
+                        //计算总数量与总金额
+                        // this.totalNum=0;
+                        // this.totalMoney=0;
+                        // for(let i=0;i<this.tableData.length;i++){
+                        //     this.totalNum+=this.tableData[i].num;
+                        //     this.totalMoney+=this.tableData[i].money;
+                        //}
+
+                         let payMoney=[];//付款金额
+                         let numberRefundAmount=[];//退款金额
+                         let numberPayments=[];//付款人数
+                         let numberPiece=[];//付款件数
+                         let numberPlaced=[];//下单转化率
+                         let lengedDate=[];//付款转化率
+                         let numDate=[];//成交转化率
+
+                        for(let i=0;i<this.tableData.length;i++){
+                            payMoney.push(this.tableData[i].pay_money);
+                            numberRefundAmount.push(this.tableData[i].number_refund_amount);
+                            numberPayments.push(this.tableData[i].number_payments);
+                            numberPiece.push(this.tableData[i].number_piece);
+                            numberPlaced.push(this.tableData[i].number_placed/this.tableData[i].number_visitors*100).toFixed(0);
+                            lengedDate.push(this.tableData[i].number_payments/this.tableData[i].number_placed*100).toFixed(0);
+                            numDate.push(this.tableData[i].number_payments/this.tableData[i].number_visitors*100).toFixed(2);
+
+
+                        }
+
+
+                        // 基于准备好的dom，初始化echarts实例
+                        let myChart = echarts.init(document.getElementById('main'));
+
+                        //指定图表的配置项和数据
+                          option = {
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                data:['付款金额','退款金额','付款人数','付款件数','下单转化率','付款转化率','成交转化率']
+                            },
+                            grid: {
+                                left: '7%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            //保存为图片
+                            // toolbox: {
+                            //     feature: {
+                            //         saveAsImage: {}
+                            //     }
+                            // },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                data: ['周一','周二','周三','周四','周五','周六','周日']
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [
+                                {
+                                    name:'付款金额',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:payMoney
+                                },
+                                {
+                                    name:'退款金额',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:numberRefundAmount
+                                },
+                                {
+                                    name:'付款人数',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:numberPayments
+                                },
+                                {
+                                    name:'付款件数',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:numberPiece
+                                },
+                                {
+                                    name:'下单转化率',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:numberPlaced
+                                },
+                                {
+                                    name:'付款转化率',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:lengedDate
+                                },
+                                {
+                                    name:'成交转化率',
+                                    type:'line',
+                                    stack: '总量',
+                                    data:numDate
+                                }
+                            ]
+                        };
+
+                        // 使用刚指定的配置项和数据显示图表。
+                        myChart.setOption(option)
+                    })
+            }
+        }
+    });
+
+</script>
+</html>

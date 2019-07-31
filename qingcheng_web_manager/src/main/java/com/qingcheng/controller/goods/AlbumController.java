@@ -1,13 +1,11 @@
 package com.qingcheng.controller.goods;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.goods.Album;
-import com.qingcheng.service.goods.AlbumService;
-import org.junit.Test;
+import com.qingcheng.goods.AlbumService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

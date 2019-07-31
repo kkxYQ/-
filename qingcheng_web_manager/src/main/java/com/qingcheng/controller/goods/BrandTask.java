@@ -1,6 +1,6 @@
 package com.qingcheng.controller.goods;
 
-import com.qingcheng.service.goods.BrandService;
+import com.qingcheng.goods.BrandService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

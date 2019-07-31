@@ -2,7 +2,7 @@ package com.qingcheng.controller.order;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.pojo.order.CategoryReport;
-import com.qingcheng.service.order.CategoryReportService;
+import com.qingcheng.order.CategoryReportService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

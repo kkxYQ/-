@@ -3,7 +3,7 @@ package com.qingcheng.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.user.User;
-import com.qingcheng.service.user.UserService;
+import com.qingcheng.user.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 

@@ -2,7 +2,7 @@ package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.pojo.system.Admin;
-import com.qingcheng.service.system.AdminService;
+import com.qingcheng.system.AdminService;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

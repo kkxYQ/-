@@ -5,7 +5,7 @@ import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.order.GroupOrder;
 import com.qingcheng.pojo.order.Order;
-import com.qingcheng.service.order.OrderService;
+import com.qingcheng.order.OrderService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

@@ -5,7 +5,7 @@ import com.qingcheng.entity.PageResult;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.goods.Spu;
 import com.qingcheng.pojo.goods.SpuandSku;
-import com.qingcheng.service.goods.SpuService;
+import com.qingcheng.goods.SpuService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

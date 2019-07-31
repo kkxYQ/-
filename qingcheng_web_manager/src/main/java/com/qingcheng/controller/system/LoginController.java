@@ -3,7 +3,7 @@ package com.qingcheng.controller.system;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.entity.Result;
 import com.qingcheng.pojo.system.Admin;
-import com.qingcheng.service.system.AdminService;
+import com.qingcheng.system.AdminService;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;

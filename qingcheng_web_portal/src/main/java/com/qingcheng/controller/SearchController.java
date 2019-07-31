@@ -2,7 +2,7 @@ package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.WebUtil;
-import com.qingcheng.service.goods.SkuSearchService;
+import com.qingcheng.goods.SkuSearchService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

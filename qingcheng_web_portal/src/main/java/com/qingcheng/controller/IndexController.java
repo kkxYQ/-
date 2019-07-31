@@ -2,8 +2,8 @@ package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.qingcheng.pojo.business.Ad;
-import com.qingcheng.service.business.AdService;
-import com.qingcheng.service.goods.CategoryService;
+import com.qingcheng.business.AdService;
+import com.qingcheng.goods.CategoryService;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;

@@ -2,13 +2,12 @@ package com.qingcheng.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.qingcheng.pojo.goods.Sku;
 import com.qingcheng.pojo.goods.Spu;
 import com.qingcheng.pojo.goods.SpuandSku;
-import com.qingcheng.service.goods.CategoryService;
-import com.qingcheng.service.goods.SpuService;
+import com.qingcheng.goods.CategoryService;
+import com.qingcheng.goods.SpuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;

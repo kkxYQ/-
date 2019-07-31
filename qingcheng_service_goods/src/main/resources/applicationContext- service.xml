@@ -9,7 +9,7 @@
     </bean>
 
     <!--es 高级客户端-->
-    <bean id="restHighLevelClient" class="com.qingcheng.service.impl.RestClientFactory"
+    <bean id="restHighLevelClient" class="com.qingcheng.service.RestClientFactory"
           factory-method="getRestHighLevelClient">
 
         <constructor-arg index="0" value="127.0.0.1"/>
