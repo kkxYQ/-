@@ -50,7 +50,7 @@ public class Sku implements Serializable{
 
 	private Integer commentNum;//评论数
 
-	private String status;//商品状态 1-正常，2-下架，3-删除
+	private String status;//商品状态 1-正常，2-下架，3-删除 4-不存在
 
 	
 	public String getId() {
